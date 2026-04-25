@@ -22,9 +22,22 @@ python -m pip install --upgrade pip
 python -m pip install Django
 ```
 
+### Verify Django is installed
+
 ```bash
 python -m django --version
 ```
+
+```bash
+# enter python shell
+python
+
+# type commands below by lines  (after `>>>`)  
+>>> import django
+>>> print(django.get_version())
+6.0
+```
+
 
 ## Save and install requirements
 
