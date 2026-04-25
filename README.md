@@ -5,6 +5,10 @@ python3 -m venv venv
 ```
 
 ```bash
+python --version
+```
+
+```bash
 source venv/bin/activate
 ```
 
@@ -16,6 +20,10 @@ python -m pip install --upgrade pip
 
 ```bash
 python -m pip install Django
+```
+
+```bash
+python -m django --version
 ```
 
 ## Save and install requirements
