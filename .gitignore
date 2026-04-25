@@ -178,3 +178,5 @@ cython_debug/
 .idx
 .idea
 .codesandbox/
+.devcontainer
+.github
