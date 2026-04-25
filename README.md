@@ -36,6 +36,7 @@ python
 >>> import django
 >>> print(django.get_version())
 6.0
+# press `Ctrl + D` - in order to close python shell
 ```
 
 
