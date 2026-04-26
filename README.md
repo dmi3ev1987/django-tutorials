@@ -27,7 +27,8 @@ You can change directory into `djangotutorial` and use default runserver command
 python manage.py runserver
 ```
 
-Also you can change default `ip` and `port`.
+You can change default `ip` and `port`.
+Also you can run server from root directory:
 
 ```bash
 python djangotutorial/manage.py runserver 127.0.0.1:8000
