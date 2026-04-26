@@ -18,3 +18,18 @@ djangotutorial/
         asgi.py
         wsgi.py
 ```
+
+## Run server
+
+You can change directory into `djangotutorial` and use default runserver command:
+
+```bash
+python manage.py runserver
+```
+
+Or use command below.
+Also you can change default `ip` and `port`.
+
+```bash
+python djangotutorial/manage.py runserver 127.0.0.1:8000
+```
