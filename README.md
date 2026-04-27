@@ -68,3 +68,16 @@ python manage.py runserver
 ```
 
 Go to `http://localhost:8000/polls/` in your browser, and you should see the text “Hello, world. You’re at the polls index.”, which you defined in the index view.
+
+## Key takeaways
+
+```bash
+# start new project (from root directory)
+django-admin startproject <project_name> <directory_name>
+
+# run server (from project directory)
+python manage.py runserver <ip:port>
+
+# start new app (from project directory)
+python manage.py startapp <app_name>
+```
