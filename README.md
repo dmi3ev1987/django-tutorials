@@ -59,3 +59,12 @@ polls/
 ## First view and URL
 
 Basic examples of `view` and `URL` you can find in `polls/views.py` and `polls/urls.py` respectively.
+Also you should inculde urls in `mysite/urls.py`.
+
+## Verify it's working
+
+```bash
+python manage.py runserver
+```
+
+Go to `http://localhost:8000/polls/` in your browser, and you should see the text “Hello, world. You’re at the polls index.”, which you defined in the index view.
