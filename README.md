@@ -38,7 +38,7 @@ python djangotutorial/manage.py runserver 127.0.0.1:8000
 
 > An app is a web application that does something – e.g., a blog system, a database of public records or a small poll app. A project is a collection of configuration and apps for a particular website. A project can contain multiple apps. An app can be in multiple projects.
 
-To create your app, make sure you’re in the same directory as manage.py and type this command:
+To create your app, make sure you’re in the same directory as `manage.py` and type this command:
 
 ```bash
 python manage.py startapp polls
