@@ -55,3 +55,7 @@ polls/
     tests.py
     views.py
 ```
+
+## First view and URL
+
+Basic examples of `view` and `URL` you can find in `polls/views.py` and `polls/urls.py` respectively.
