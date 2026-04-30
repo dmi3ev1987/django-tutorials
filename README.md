@@ -35,8 +35,8 @@ Examples of `Question` and `Choice` models you can find in `polls/models.py`.
 - The name of each `Field` instance is the field’s name and your database will use it as the *column* name.
 - You can use an optional first positional argument to a `Field` to designate a human-readable name. See example for **Question.pub_date**.
 - Some `Field` classes have required arguments. **CharField**, for example, requires that you give it a *max_length*.
-- We’ve set the *default* value of *votes* to 0.
-- Using **ForeignKey**. That tells Django each Choice is related to a single Question.
+- Optional argument for **Choice.votes** sets *default* value of *votes* to 0.
+- **ForeignKey** in **Choice.question** tells Django each **Choice** is related to a single **Question**.
 
 ## [Activating models](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#activating-models)
 
