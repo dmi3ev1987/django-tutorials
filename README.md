@@ -31,7 +31,7 @@ To use another database, see [details to customize and get your database running
 Examples of `Question` and `Choice` models you can find in `polls/models.py`.
 
 - Each models has *variables* which represents a database *fields* in the model.
-- Each field is represented by an instance of a `Field` class.
+- Each field is represented by an instance of a `Field` class – e.g., **CharField** for character fields and **DateTimeField** for datetimes.
 - The name of each `Field` instance is the field’s name and your database will use it as the *column* name.
 - You can use an optional first positional argument to a `Field` to designate a human-readable name. See example for **Question.pub_date**.
 - Some `Field` classes have required arguments. **CharField**, for example, requires that you give it a *max_length*.
