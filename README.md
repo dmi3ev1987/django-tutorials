@@ -1,6 +1,6 @@
 # [Part 1: Requests and responses](https://docs.djangoproject.com/en/6.0/intro/tutorial01/)
 
-## Start new project
+## [Start new project](https://docs.djangoproject.com/en/6.0/intro/tutorial01/#creating-a-project)
 
 ```bash
 django-admin startproject mysite djangotutorial
@@ -19,7 +19,7 @@ djangotutorial/
         wsgi.py
 ```
 
-## Run server
+## [Run server](https://docs.djangoproject.com/en/6.0/intro/tutorial01/#the-development-server)
 
 You can change directory into `djangotutorial` and use default runserver command:
 
@@ -34,7 +34,7 @@ Also you can run server from root directory:
 python djangotutorial/manage.py runserver 127.0.0.1:8000
 ```
 
-## Start new app
+## [Start new app](https://docs.djangoproject.com/en/6.0/intro/tutorial01/#creating-the-polls-app)
 
 > An app is a web application that does something – e.g., a blog system, a database of public records or a small poll app. A project is a collection of configuration and apps for a particular website. A project can contain multiple apps. An app can be in multiple projects.
 
@@ -56,12 +56,12 @@ polls/
     views.py
 ```
 
-## First view and URL
+## [First view and URL](https://docs.djangoproject.com/en/6.0/intro/tutorial01/#write-your-first-view)
 
 Basic examples of `view` and `URL` you can find in `polls/views.py` and `polls/urls.py` respectively.
 Also you should inculde urls in `mysite/urls.py`.
 
-## Verify it's working
+### Verify it's working
 
 ```bash
 python manage.py runserver
