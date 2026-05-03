@@ -123,7 +123,7 @@ datetime.datetime(2012, 2, 26, 13, 0, 0, 775217, tzinfo=datetime.UTC)
 <QuerySet [<Question: Question object (1)>]>
 ```
 
-`<Question: Question object (1)>` isn’t a helpful representation of this object. Let’s fix that by editing the `Question` model (in the `polls/models.py` file) and adding a `__str__()` method to both `Question` and `Choice`.
+Making a helpful representation of `Question` and `Choice` objects. Add a `__str__()` methods in the `polls/models.py` file.
 
 Also add a custom method `was_published_recently` to `Question` model.
 
