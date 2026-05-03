@@ -123,9 +123,9 @@ datetime.datetime(2012, 2, 26, 13, 0, 0, 775217, tzinfo=datetime.UTC)
 <QuerySet [<Question: Question object (1)>]>
 ```
 
-Making a helpful representation of `Question` and `Choice` objects. Add a `__str__()` methods in the `polls/models.py` file.
+To make a helpful representation of `Question` and `Choice` objects add a `__str__()` methods in the `polls/models.py` file.
 
-Also add a custom method `was_published_recently` to `Question` model.
+Also we can add a custom method `was_published_recently` to `Question` model.
 
 > Note the addition of `import datetime` and `from django.utils import timezone`, to reference Python’s standard `datetime` module and Django’s time-zone-related utilities in `django.utils.timezone`, respectively. If you aren’t familiar with time zone handling in Python, you can learn more in the [time zone support docs](https://docs.djangoproject.com/en/6.0/topics/i18n/timezones/).
 
