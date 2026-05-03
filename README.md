@@ -88,3 +88,94 @@ Read the [django-admin documentation](https://docs.djangoproject.com/en/6.0/ref/
 
 ## [Playing with the API](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#playing-with-the-api)
 
+```bash
+python manage.py shell
+```
+
+When you are in the **shell** type commands after `>>>`:
+
+```python
+# Support for time zones is enabled in the default settings file, so
+# Django expects a datetime with tzinfo for pub_date. Use timezone.now()
+# instead of datetime.datetime.now() and it will do the right thing.
+>>> from django.utils import timezone
+>>> q = Question(question_text="What's new?", pub_date=timezone.now())
+
+# Save the object into the database. You have to call save() explicitly.
+>>> q.save()
+
+# Now it has an ID.
+>>> q.id
+1
+
+# Access model field values via Python attributes.
+>>> q.question_text
+"What's new?"
+>>> q.pub_date
+datetime.datetime(2012, 2, 26, 13, 0, 0, 775217, tzinfo=datetime.UTC)
+
+# Change values by changing the attributes, then calling save().
+>>> q.question_text = "What's up?"
+>>> q.save()
+
+# objects.all() displays all the questions in the database.
+>>> Question.objects.all()
+<QuerySet [<Question: Question object (1)>]>
+```
+
+`<Question: Question object (1)>` isn’t a helpful representation of this object. Let’s fix that by editing the `Question` model (in the `polls/models.py` file) and adding a `__str__()` method to both `Question` and `Choice`.
+
+Also add a custom method `was_published_recently` to `Question` model.
+
+> Note the addition of `import datetime` and `from django.utils import timezone`, to reference Python’s standard `datetime` module and Django’s time-zone-related utilities in `django.utils.timezone`, respectively. If you aren’t familiar with time zone handling in Python, you can learn more in the [time zone support docs](https://docs.djangoproject.com/en/6.0/topics/i18n/timezones/).
+
+If a three-chevron prompt (>>>) indicates you are still in the **shell**, you need to exit first using `exit()`. Run `python manage.py shell` again to reload the models.
+
+```python
+>>> Question.objects.all()
+>>> Question.objects.filter(id=1)
+>>> Question.objects.filter(question_text__startswith="What")
+
+# Get the question that was published this year.
+>>> from django.utils import timezone
+>>> current_year = timezone.now().year
+>>> Question.objects.get(pub_date__year=current_year)
+<Question: What's up?>
+
+# The following is identical to Question.objects.get(id=1).
+>>> Question.objects.get(pk=1)
+<Question: What's up?>
+
+# Make sure our custom method worked.
+>>> q = Question.objects.get(pk=1)
+>>> q.was_published_recently()
+True
+
+# Give the Question a couple of Choices.
+>>> q = Question.objects.get(pk=1)
+>>> q.choice_set.create(choice_text="Not much", votes=0)
+>>> q.choice_set.create(choice_text="The sky", votes=0)
+
+>>> c = q.choice_set.create(choice_text="Just hacking again", votes=0)
+
+# Choice objects have API access to their related Question objects.
+>>> c.question
+<Question: What's up?>
+
+# And vice versa: Question objects get access to Choice objects.
+>>> q.choice_set.all()
+>>> q.choice_set.count()
+
+# The API automatically follows relationships as far as you need.
+# Use double underscores to separate relationships.
+# This works as many levels deep as you want; there's no limit.
+>>> Choice.objects.filter(question__pub_date__year=current_year)
+
+# Let's delete one of the choices. Use delete() for that.
+>>> c = q.choice_set.filter(choice_text__startswith="Just hacking")
+>>> c.delete()
+```
+
+For more information on model relations, see [Accessing related objects](https://docs.djangoproject.com/en/6.0/ref/models/relations/). For more on how to use double underscores to perform field lookups via the API, see [Field lookups](https://docs.djangoproject.com/en/6.0/topics/db/queries/#field-lookups-intro). For full details on the database API, see our [Database API reference](https://docs.djangoproject.com/en/6.0/topics/db/queries/).
+
+## [Introducing the Django Admin](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#introducing-the-django-admin)
