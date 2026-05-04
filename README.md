@@ -179,3 +179,36 @@ True
 For more information on model relations, see [Accessing related objects](https://docs.djangoproject.com/en/6.0/ref/models/relations/). For more on how to use double underscores to perform field lookups via the API, see [Field lookups](https://docs.djangoproject.com/en/6.0/topics/db/queries/#field-lookups-intro). For full details on the database API, see our [Database API reference](https://docs.djangoproject.com/en/6.0/topics/db/queries/).
 
 ## [Introducing the Django Admin](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#introducing-the-django-admin)
+
+### [Creating an admin user](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#creating-an-admin-user)
+
+```bash
+python manage.py createsuperuser
+```
+
+### [Start the development server](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#start-the-development-server)
+
+```bash
+python manage.py runserver
+```
+
+Open a web browser and go to `/admin/` on your local domain – e.g., `http://127.0.0.1:8000/admin/`.
+Since [translation](https://docs.djangoproject.com/en/6.0/topics/i18n/translation/) is turned on by default, if you set [LANGUAGE_CODE](https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-LANGUAGE_CODE), the login screen will be displayed in the given language.
+
+### [Enter the admin site](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#enter-the-admin-site)
+
+Log in with the superuser account you created.
+
+### [Make the poll app modifiable in the admin](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#make-the-poll-app-modifiable-in-the-admin)
+
+To see poll app in admin we need to edit `polls/admin.py`.
+
+```python
+from django.contrib import admin
+
+from .models import Question
+
+admin.site.register(Question)
+```
+
+### [Explore the free admin functionality](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#explore-the-free-admin-functionality)
