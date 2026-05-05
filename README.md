@@ -79,7 +79,7 @@ python manage.py migrate
 
 The `migrate` command takes all the migrations that haven’t been applied (Django tracks which ones are applied using a special table in your database called **django_migrations**).
 
-Remember the three-step guide to making model changes:
+### Remember the three-step guide to making model changes:
 - Change your models (in `models.py`).
 - Run `python manage.py makemigrations` to create migrations for those changes.
 - Run `python manage.py migrate` to apply those changes to the database.
