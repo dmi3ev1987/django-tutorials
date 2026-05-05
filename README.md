@@ -20,6 +20,11 @@ sqlite3 djangotutorial/db.sqlite3
 # display the tables Django created
 .tables
 
+# view data in specific table
+.mode column
+.headers on
+SELECT * FROM table_name;
+
 # use .quit or .exit
 .exit
 ```
