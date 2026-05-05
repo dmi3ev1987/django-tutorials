@@ -212,3 +212,19 @@ admin.site.register(Question)
 ```
 
 ### [Explore the free admin functionality](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#explore-the-free-admin-functionality)
+
+See screenshots in original [Django tutorial](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#explore-the-free-admin-functionality).
+
+Things to note here:
+- The form is automatically generated from the Question model.
+- The different model field types (DateTimeField, CharField) correspond to the appropriate HTML input widget. Each type of field knows how to display itself in the Django admin.
+- Each DateTimeField gets free JavaScript shortcuts. Dates get a “Today” shortcut and calendar popup, and times get a “Now” shortcut and a convenient popup that lists commonly entered times.
+
+The bottom part of the page gives you a couple of options:
+- Save – Saves changes and returns to the change-list page for this type of object.
+- Save and continue editing – Saves changes and reloads the admin page for this object.
+- Save and add another – Saves changes and loads a new, blank form for this type of object.
+- Delete – Displays a delete confirmation page.
+
+Also admin panel has “History” buttom in the upper right - a page listing all changes made to this object via the Django admin, with the timestamp and username of the person who made the change
+
