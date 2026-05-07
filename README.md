@@ -233,3 +233,15 @@ The bottom part of the page gives you a couple of options:
 
 Also admin panel has “History” buttom in the upper right - a page listing all changes made to this object via the Django admin, with the timestamp and username of the person who made the change
 
+## Key takeaways
+
+```bash
+# create migrations
+python manage.py makemigrations
+
+# apply changes to DB
+python manage.py migrate
+
+# create admin user
+python manage.py createsuperuser
+```
