@@ -21,3 +21,7 @@ detail(request=<HttpRequest object>, question_id=34)
 The `question_id=34` part comes from `<int:question_id>`. Using angle brackets *“captures”* part of the URL and sends it as a keyword argument to the view function. The `question_id` part of the string defines the name that will be used to identify the matched pattern, and the `int` part is a converter that determines what patterns should match this part of the URL path. The colon (`:`) separates the converter and pattern name.
 
 ## [Write views that actually do something](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#write-views-that-actually-do-something)
+
+> Each view is responsible for doing one of two things: returning an [HttpResponse](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponse) object containing the content for the requested page, or raising an exception such as [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404).
+
+Look at example in `polls/views.py` in `index()` view,  which displays the latest 5 poll questions in the system, separated by commas, according to publication date.
