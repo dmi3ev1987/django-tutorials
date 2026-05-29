@@ -36,8 +36,12 @@ Next, create a directory called `templates` in your `polls` directory. Django wi
 
 Make template in `polls/templates/polls/index.html`.
 
-Look at updated code in `polls/views.py`. That code loads the template called `polls/index.html` and passes it a context. The **context** is a dictionary mapping template variable names to Python objects.
+Look at updated code in `polls/views.py`. That code loads the template called `polls/index.html` and passes it a context. The **context** is a dictionary mapping template variable names to Python objects. We commented it as `second vesion`.
 
 ## [A shortcut: **render()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-render)
 
+It’s a very common idiom to load a template, fill a context and return an `HttpResponse` object with the result of the rendered template. Django provides a shortcut. Look at full `index()` view in `polls/views.py`.
 
+The `render()` function takes the request object as its first argument, a template name as its second argument and a dictionary as its optional third argument. It returns an `HttpResponse` object of the given template rendered with the given context.
+
+### [Raising a 404 error](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#raising-a-404-error)
