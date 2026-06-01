@@ -45,3 +45,11 @@ It’s a very common idiom to load a template, fill a context and return an `Htt
 The `render()` function takes the request object as its first argument, a template name as its second argument and a dictionary as its optional third argument. It returns an `HttpResponse` object of the given template rendered with the given context.
 
 ## [Raising a 404 error](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#raising-a-404-error)
+
+Let's make the page that displays the question text for a given poll. Also this view raises the [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404) exception if a question with the requested ID doesn’t exist.
+
+Look at examples:
+- `polls/views.py`
+- `polls/templates/polls/detail.html`
+
+## [A shortcut: **get_object_or_404()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-get-object-or-404)
