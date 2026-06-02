@@ -24,7 +24,15 @@ The `question_id=34` part comes from `<int:question_id>`. Using angle brackets *
 
 > Each view is responsible for doing one of two things: returning an [HttpResponse](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponse) object containing the content for the requested page, or raising an exception such as [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404).
 
-Look at example in `polls/views.py` in `index()` view,  which displays the latest 5 poll questions in the system, separated by commas, according to publication date. We commented it as `first vesion`.
+Look at example of `index()` view,  which displays the latest 5 poll questions in the system, separated by commas, according to publication date:
+
+```python
+#polls/views.py
+def index(request):
+    latest_question_list = Question.objects.order_by("-pub_date")[:5]
+    output = ", ".join([q.question_text for q in latest_question_list])
+    return HttpResponse(output)
+```
 
 Next, create a directory called `templates` in your `polls` directory. Django will look for templates in there.
 
@@ -36,7 +44,19 @@ Next, create a directory called `templates` in your `polls` directory. Django wi
 
 Make template in `polls/templates/polls/index.html`.
 
-Look at updated code in `polls/views.py`. That code loads the template called `polls/index.html` and passes it a context. The **context** is a dictionary mapping template variable names to Python objects. We commented it as `second vesion`.
+Look at updated code below which loads the template called `polls/index.html` and passes it a context. The **context** is a dictionary mapping template variable names to Python objects.
+
+```python
+#polls/views.py
+from django.template import loader
+
+
+def index(request):
+    latest_question_list = Question.objects.order_by("-pub_date")[:5]
+    template = loader.get_template("polls/index.html")
+    context = {"latest_question_list": latest_question_list}
+    return HttpResponse(template.render(context, request))
+```
 
 ## [A shortcut: **render()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-render)
 
@@ -46,10 +66,18 @@ The `render()` function takes the request object as its first argument, a templa
 
 ## [Raising a 404 error](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#raising-a-404-error)
 
-Let's make the page that displays the question text for a given poll. Also this view raises the [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404) exception if a question with the requested ID doesn’t exist.
+Let's make the page that displays the question text for a given poll and raises the [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404) exception if a question with the requested ID doesn’t exist:
 
-Look at examples:
-- `polls/views.py`
-- `polls/templates/polls/detail.html`
+```python
+from django.http import Http404
+
+
+def detail(request, question_id):
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, "polls/detail.html", {"question": question})
+```
 
 ## [A shortcut: **get_object_or_404()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-get-object-or-404)
