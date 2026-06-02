@@ -81,3 +81,13 @@ def detail(request, question_id):
 ```
 
 ## [A shortcut: **get_object_or_404()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-get-object-or-404)
+
+It’s a very common idiom to use `get()` and raise `Http404` if the object doesn’t exist. Django provides a shortcut. Look at final verison `detail` view in `polls/views.py`.
+
+> The `get_object_or_404()` function takes a Django model as its first argument and an arbitrary number of keyword arguments, which it passes to the `get()` function of the model’s manager. It raises `Http404` if the object doesn’t exist.
+
+> There’s also a `get_list_or_404()` function, which works just as `get_object_or_404()` – except using `filter()` instead of `get()`. It raises `Http404` if the list is empty.
+
+It's better to use `get_object_or_404()` because it reduces coupling between the model and view layers, without requiring you to import `Http404` into your models or catch `ObjectDoesNotExist` manually in every view.
+
+## [Use the template system](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#use-the-template-system)
