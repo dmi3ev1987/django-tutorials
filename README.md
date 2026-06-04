@@ -91,3 +91,13 @@ It’s a very common idiom to use `get()` and raise `Http404` if the object does
 It's better to use `get_object_or_404()` because it reduces coupling between the model and view layers, without requiring you to import `Http404` into your models or catch `ObjectDoesNotExist` manually in every view.
 
 ## [Use the template system](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#use-the-template-system)
+
+Check updated version of `polls/templates/polls/detail.html`.
+
+> The template system uses dot-lookup syntax to access variable attributes. In the example of {{ question.question_text }}, first Django does a dictionary lookup on the object question. Failing that, it tries an attribute lookup – which works, in this case. If attribute lookup had failed, it would’ve tried a list-index lookup.
+
+See the [template guide](https://docs.djangoproject.com/en/6.0/topics/templates/) for more about templates.
+
+## [Removing hardcoded URLs in templates](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#removing-hardcoded-urls-in-templates)
+
+
