@@ -100,6 +100,78 @@ Check updated version of `polls/templates/polls/detail.html`.
 
 See the [template guide](https://docs.djangoproject.com/en/6.0/topics/templates/) for more about templates.
 
+### The `_set` suffix in Django
+
+Is automatically generated as the default `RelatedManager` name for **reverse foreign key relationships**.
+
+Example:
+
+```python
+from django.db import models
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+# Django automatically adds book_set to the Author model
+author = Author.objects.get(id=1)
+books = author.book_set.all()  # Auto-generated reverse manager
+```
+
+You can override the automatic _set name using the related_name parameter:
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(
+        Author, 
+        on_delete=models.CASCADE,
+        related_name='books'  # Now use author.books instead of author.book_set
+    )
+
+# Now you would use
+author.books.all()  # Custom name, no _set
+```
+
+Key points:
+- `_set` is **only for** reverse `ForeignKey` relationships (not `ManyToManyField`).
+- It uses the *lowercase* name of the related model.
+- It's `automatically created` if you don't specify `related_name`.
+- You can always customize it to something more readable.
+
 ## [Removing hardcoded URLs in templates](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#removing-hardcoded-urls-in-templates)
 
+In the `polls/index.html` template, the link was partially hardcoded like this:
+
+```html
+<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+```
+
+> The problem with this hardcoded, tightly-coupled approach is that it becomes challenging to change URLs on projects with a lot of templates. However, since you defined the name argument in the `path()` functions in the `polls.urls` module, you can remove a reliance on specific URL paths defined in your url configurations by using the `{% url %}` **template tag**:
+
+```html
+<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
+You can see exactly where the URL name of ‘detail’ is defined below:
+
+```python
+...
+# the 'name' value as called by the {% url %} template tag
+path("<int:question_id>/", views.detail, name="detail"),
+...
+```
+
+If you want to change the URL of the polls detail view to something else:
+```python
+...
+# added the word 'specifics'
+path("specifics/<int:question_id>/", views.detail, name="detail"),
+...
+```
+
+## [Namespacing URL names](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#namespacing-url-names)
 
