@@ -94,7 +94,7 @@ It's better to use `get_object_or_404()` because it reduces coupling between the
 
 Check updated version of `polls/templates/polls/detail.html`.
 
-> The template system uses dot-lookup syntax to access variable attributes. In the example of {{ question.question_text }}, first Django does a dictionary lookup on the object question. Failing that, it tries an attribute lookup – which works, in this case. If attribute lookup had failed, it would’ve tried a list-index lookup.
+> The template system uses dot-lookup syntax to access variable attributes. In the example of `{{ question.question_text }}`, first Django does a dictionary lookup on the object question. Failing that, it tries an attribute lookup – which works, in this case. If attribute lookup had failed, it would’ve tried a list-index lookup.
 
 See the [template guide](https://docs.djangoproject.com/en/6.0/topics/templates/) for more about templates.
 
