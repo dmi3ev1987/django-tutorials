@@ -175,3 +175,12 @@ path("specifics/<int:question_id>/", views.detail, name="detail"),
 
 ## [Namespacing URL names](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#namespacing-url-names)
 
+To differentiate the URL names between apps with the same template names we can add an `app_name` to set the application namespace. Look at `polls/urls.py`.
+
+Change your `polls/index.html` template to point at the namespaced detail view:
+
+```python
+<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
+
