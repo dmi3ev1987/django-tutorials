@@ -1,247 +1,186 @@
-# [Part 2: Models and the admin site](https://docs.djangoproject.com/en/6.0/intro/tutorial02/)
+# [Part 3: Views and templates](https://docs.djangoproject.com/en/6.0/intro/tutorial03/)
 
-## [Database setup](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#database-setup)
+## [Overview](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#overview)
 
-```bash
-python manage.py migrate
-```
+A view is a “type” of web page in your Django application that generally serves a specific function and has a specific template. Examples you can find in [original documantation](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#overview).
 
-> The `migrate` command looks at the `INSTALLED_APPS` setting and creates any necessary database tables according to the database settings in your `mysite/settings.py` file (SQLite by default).
+> A URL pattern is the general form of a URL - for example: `/newsarchive/<year>/<month>/`.
+To get from a URL to a view, Django uses what are known as ‘URLconfs’. A URLconf maps URL patterns to views.
+This tutorial provides basic instruction in the use of URLconfs, and you can refer to [URL dispatcher](https://docs.djangoproject.com/en/6.0/topics/http/urls/) for more information.
 
-For SQLite you can check tables created:
+## [Writing more views](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#writing-more-views)
 
-```bash
-# verify sqlite3 is installed
-sqlite3 --version
+New veiws (`detail`, `results`, `vote`) were added in `polls/views.py`. Also new urls in `polls/urls.py`.
 
-# enter sqlite3 shell > path to db.sqlite3
-sqlite3 djangotutorial/db.sqlite3 
-
-# display the tables Django created
-.tables
-
-# view data in specific table
-.mode column
-.headers on
-SELECT * FROM table_name;
-
-# use .quit or .exit
-.exit
-```
-
-To use another database, see [details to customize and get your database running](https://docs.djangoproject.com/en/6.0/topics/install/#database-installation).
-
-## [Creating models](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#creating-models)
-
-Examples of `Question` and `Choice` models you can find in `polls/models.py`.
-
-- Each models has *variables* which represents a database *fields* in the model.
-- Each field is represented by an instance of a `Field` class – e.g., **CharField** for character fields and **DateTimeField** for datetimes.
-- The name of each `Field` instance is the field’s name and your database will use it as the *column* name.
-- You can use an optional first positional argument to a `Field` to designate a human-readable name. See example for **Question.pub_date**.
-- Some `Field` classes have required arguments. **CharField**, for example, requires that you give it a *max_length*.
-- Optional argument for **Choice.votes** sets *default* value of *votes* to 0.
-- **ForeignKey** in **Choice.question** tells Django each **Choice** is related to a single **Question**.
-
-## [Activating models](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#activating-models)
-
-Tell our project that the polls app is installed:
+Take a look in your browser, at `/polls/34/`. It’ll run the `detail()` function and display whatever `ID` you provide in the URL. Try `/polls/34/results/` and `/polls/34/vote/` too – these will display the placeholder results and voting pages.
 
 ```python
-# mysite/settings.py
-INSTALLED_APPS = [
-    "polls.apps.PollsConfig",  # add a reference to PollsConfig in polls/apps.py
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-]
+detail(request=<HttpRequest object>, question_id=34)
 ```
 
-Now make migrations for one specific app **polls**. Name is set in *PollsConfig*.
-This faster then make migrations for all apps by using just `python manage.py makemigrations`
+The `question_id=34` part comes from `<int:question_id>`. Using angle brackets *“captures”* part of the URL and sends it as a keyword argument to the view function. The `question_id` part of the string defines the name that will be used to identify the matched pattern, and the `int` part is a converter that determines what patterns should match this part of the URL path. The colon (`:`) separates the converter and pattern name.
 
-```bash
-python manage.py makemigrations polls
-```
+## [Write views that actually do something](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#write-views-that-actually-do-something)
 
-The `sqlmigrate` command takes *migration names* and returns their **SQL**:
+> Each view is responsible for doing one of two things: returning an [HttpResponse](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponse) object containing the content for the requested page, or raising an exception such as [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404).
 
-```bash
-python manage.py sqlmigrate polls 0001
-```
-> The sqlmigrate command doesn’t actually run the migration on your database - instead, it prints it to the screen so that you can see what SQL Django thinks is required. It’s useful for checking what Django is going to do or if you have database administrators who require SQL scripts for changes.
-
-If you’re interested, you can also run `python manage.py check`. This checks for any problems in your project without making migrations or touching the database.
-
-Now, run **migrate** again to create those model tables in your *database*:
-
-```bash
-python manage.py migrate
-```
-
-The `migrate` command takes all the migrations that haven’t been applied (Django tracks which ones are applied using a special table in your database called **django_migrations**).
-
-### Remember the three-step guide to making model changes:
-- Change your models (in `models.py`).
-- Run `python manage.py makemigrations` to create migrations for those changes.
-- Run `python manage.py migrate` to apply those changes to the database.
-
-Read the [django-admin documentation](https://docs.djangoproject.com/en/6.0/ref/django-admin/) for full information on what the `manage.py` utility can do.
-
-## [Playing with the API](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#playing-with-the-api)
-
-```bash
-python manage.py shell
-```
-
-When you are in the **shell** type commands after `>>>`:
+Look at example of `index()` view,  which displays the latest 5 poll questions in the system, separated by commas, according to publication date:
 
 ```python
-# Support for time zones is enabled in the default settings file, so
-# Django expects a datetime with tzinfo for pub_date. Use timezone.now()
-# instead of datetime.datetime.now() and it will do the right thing.
->>> from django.utils import timezone
->>> q = Question(question_text="What's new?", pub_date=timezone.now())
-
-# Save the object into the database. You have to call save() explicitly.
->>> q.save()
-
-# Now it has an ID.
->>> q.id
-1
-
-# Access model field values via Python attributes.
->>> q.question_text
-"What's new?"
->>> q.pub_date
-datetime.datetime(2012, 2, 26, 13, 0, 0, 775217, tzinfo=datetime.UTC)
-
-# Change values by changing the attributes, then calling save().
->>> q.question_text = "What's up?"
->>> q.save()
-
-# objects.all() displays all the questions in the database.
->>> Question.objects.all()
-<QuerySet [<Question: Question object (1)>]>
+#polls/views.py
+def index(request):
+    latest_question_list = Question.objects.order_by("-pub_date")[:5]
+    output = ", ".join([q.question_text for q in latest_question_list])
+    return HttpResponse(output)
 ```
 
-To make a helpful representation of `Question` and `Choice` objects add a `__str__()` methods in the `polls/models.py` file.
+Next, create a directory called `templates` in your `polls` directory. Django will look for templates in there.
 
-Also we can add a custom method `was_published_recently` to `Question` model.
+> Your project’s `TEMPLATES` setting describes how Django will load and render templates. The default settings file configures a `DjangoTemplates` backend whose `APP_DIRS` option is set to `True`. By convention `DjangoTemplates` looks for a “templates” subdirectory in each of the `INSTALLED_APPS`.
 
-> Note the addition of `import datetime` and `from django.utils import timezone`, to reference Python’s standard `datetime` module and Django’s time-zone-related utilities in `django.utils.timezone`, respectively. If you aren’t familiar with time zone handling in Python, you can learn more in the [time zone support docs](https://docs.djangoproject.com/en/6.0/topics/i18n/timezones/).
+> Within the `templates` directory you have just created, create another directory called `polls`, and within that create a file called `index.html`. In other words, your template should be at `polls/templates/polls/index.html`. Because of how the `app_directories` template loader works as described above, you can refer to this template within Django as `polls/index.html`.
 
-If a three-chevron prompt (>>>) indicates you are still in the **shell**, you need to exit first using `exit()`. Run `python manage.py shell` again to reload the models.
+> **Template namespacing.** Now we might be able to get away with putting our templates directly in `polls/templates` (rather than creating another `polls` subdirectory), but it would actually be a bad idea. Django will choose the first template it finds whose name matches, and if you had a template with the same name in a different application, Django would be unable to distinguish between them. We need to be able to point Django at the right one, and the best way to ensure this is by namespacing them. That is, by putting those templates inside another directory named for the application itself.
+
+Make template in `polls/templates/polls/index.html`.
+
+Look at updated code below which loads the template called `polls/index.html` and passes it a context. The **context** is a dictionary mapping template variable names to Python objects.
 
 ```python
->>> Question.objects.all()
->>> Question.objects.filter(id=1)
->>> Question.objects.filter(question_text__startswith="What")
+#polls/views.py
+from django.template import loader
 
-# Get the question that was published this year.
->>> from django.utils import timezone
->>> current_year = timezone.now().year
->>> Question.objects.get(pub_date__year=current_year)
-<Question: What's up?>
 
-# The following is identical to Question.objects.get(id=1).
->>> Question.objects.get(pk=1)
-<Question: What's up?>
-
-# Make sure our custom method worked.
->>> q = Question.objects.get(pk=1)
->>> q.was_published_recently()
-True
-
-# Give the Question a couple of Choices.
->>> q = Question.objects.get(pk=1)
->>> q.choice_set.create(choice_text="Not much", votes=0)
->>> q.choice_set.create(choice_text="The sky", votes=0)
-
->>> c = q.choice_set.create(choice_text="Just hacking again", votes=0)
-
-# Choice objects have API access to their related Question objects.
->>> c.question
-<Question: What's up?>
-
-# And vice versa: Question objects get access to Choice objects.
->>> q.choice_set.all()
->>> q.choice_set.count()
-
-# The API automatically follows relationships as far as you need.
-# Use double underscores to separate relationships.
-# This works as many levels deep as you want; there's no limit.
->>> Choice.objects.filter(question__pub_date__year=current_year)
-
-# Let's delete one of the choices. Use delete() for that.
->>> c = q.choice_set.filter(choice_text__startswith="Just hacking")
->>> c.delete()
+def index(request):
+    latest_question_list = Question.objects.order_by("-pub_date")[:5]
+    template = loader.get_template("polls/index.html")
+    context = {"latest_question_list": latest_question_list}
+    return HttpResponse(template.render(context, request))
 ```
 
-For more information on model relations, see [Accessing related objects](https://docs.djangoproject.com/en/6.0/ref/models/relations/). For more on how to use double underscores to perform field lookups via the API, see [Field lookups](https://docs.djangoproject.com/en/6.0/topics/db/queries/#field-lookups-intro). For full details on the database API, see our [Database API reference](https://docs.djangoproject.com/en/6.0/topics/db/queries/).
+## [A shortcut: **render()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-render)
 
-## [Introducing the Django Admin](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#introducing-the-django-admin)
+It’s a very common idiom to load a template, fill a context and return an `HttpResponse` object with the result of the rendered template. Django provides a shortcut. Look at full `index()` view in `polls/views.py`.
 
-### [Creating an admin user](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#creating-an-admin-user)
+The `render()` function takes the request object as its first argument, a template name as its second argument and a dictionary as its optional third argument. It returns an `HttpResponse` object of the given template rendered with the given context.
 
-```bash
-python manage.py createsuperuser
-```
+## [Raising a 404 error](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#raising-a-404-error)
 
-### [Start the development server](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#start-the-development-server)
-
-```bash
-python manage.py runserver
-```
-
-Open a web browser and go to `/admin/` on your local domain – e.g., `http://127.0.0.1:8000/admin/`.
-Since [translation](https://docs.djangoproject.com/en/6.0/topics/i18n/translation/) is turned on by default, if you set [LANGUAGE_CODE](https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-LANGUAGE_CODE), the login screen will be displayed in the given language.
-
-### [Enter the admin site](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#enter-the-admin-site)
-
-Log in with the superuser account you created.
-
-### [Make the poll app modifiable in the admin](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#make-the-poll-app-modifiable-in-the-admin)
-
-To see poll app in admin we need to edit `polls/admin.py`.
+Let's make the page that displays the question text for a given poll and raises the [Http404](https://docs.djangoproject.com/en/6.0/topics/http/views/#django.http.Http404) exception if a question with the requested ID doesn’t exist:
 
 ```python
-from django.contrib import admin
+from django.http import Http404
 
-from .models import Question
 
-admin.site.register(Question)
+def detail(request, question_id):
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, "polls/detail.html", {"question": question})
 ```
 
-### [Explore the free admin functionality](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#explore-the-free-admin-functionality)
+## [A shortcut: **get_object_or_404()**](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#a-shortcut-get-object-or-404)
 
-See screenshots in original [Django tutorial](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#explore-the-free-admin-functionality).
+It’s a very common idiom to use `get()` and raise `Http404` if the object doesn’t exist. Django provides a shortcut. Look at final verison `detail` view in `polls/views.py`.
 
-Things to note here:
-- The form is automatically generated from the Question model.
-- The different model field types (DateTimeField, CharField) correspond to the appropriate HTML input widget. Each type of field knows how to display itself in the Django admin.
-- Each DateTimeField gets free JavaScript shortcuts. Dates get a “Today” shortcut and calendar popup, and times get a “Now” shortcut and a convenient popup that lists commonly entered times.
+> The `get_object_or_404()` function takes a Django model as its first argument and an arbitrary number of keyword arguments, which it passes to the `get()` function of the model’s manager. It raises `Http404` if the object doesn’t exist.
 
-The bottom part of the page gives you a couple of options:
-- Save – Saves changes and returns to the change-list page for this type of object.
-- Save and continue editing – Saves changes and reloads the admin page for this object.
-- Save and add another – Saves changes and loads a new, blank form for this type of object.
-- Delete – Displays a delete confirmation page.
+> There’s also a `get_list_or_404()` function, which works just as `get_object_or_404()` – except using `filter()` instead of `get()`. It raises `Http404` if the list is empty.
 
-Also admin panel has “History” buttom in the upper right - a page listing all changes made to this object via the Django admin, with the timestamp and username of the person who made the change
+It's better to use `get_object_or_404()` because it reduces coupling between the model and view layers, without requiring you to import `Http404` into your models or catch `ObjectDoesNotExist` manually in every view.
 
-## Key takeaways
+## [Use the template system](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#use-the-template-system)
 
-```bash
-# create migrations
-python manage.py makemigrations
+Check updated version of `polls/templates/polls/detail.html`.
 
-# apply changes to DB
-python manage.py migrate
+> The template system uses dot-lookup syntax to access variable attributes. In the example of `{{ question.question_text }}`, first Django does a dictionary lookup on the object question. Failing that, it tries an attribute lookup – which works, in this case. If attribute lookup had failed, it would’ve tried a list-index lookup.
 
-# create admin user
-python manage.py createsuperuser
+> Method-calling happens in the {% for %} loop: question.choice_set.all is interpreted as the Python code question.choice_set.all(), which returns an iterable of Choice objects and is suitable for use in the {% for %} tag.
+
+See the [template guide](https://docs.djangoproject.com/en/6.0/topics/templates/) for more about templates.
+
+### The `_set` suffix in Django
+
+Is automatically generated as the default `RelatedManager` name for **reverse foreign key relationships**.
+
+Example:
+
+```python
+from django.db import models
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+# Django automatically adds book_set to the Author model
+author = Author.objects.get(id=1)
+books = author.book_set.all()  # Auto-generated reverse manager
 ```
+
+You can override the automatic _set name using the related_name parameter:
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(
+        Author, 
+        on_delete=models.CASCADE,
+        related_name='books'  # Now use author.books instead of author.book_set
+    )
+
+# Now you would use
+author.books.all()  # Custom name, no _set
+```
+
+Key points:
+- `_set` is **only for** reverse `ForeignKey` relationships (not `ManyToManyField`).
+- It uses the *lowercase* name of the related model.
+- It's `automatically created` if you don't specify `related_name`.
+- You can always customize it to something more readable.
+
+## [Removing hardcoded URLs in templates](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#removing-hardcoded-urls-in-templates)
+
+In the `polls/index.html` template, the link was partially hardcoded like this:
+
+```html
+<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+```
+
+> The problem with this hardcoded, tightly-coupled approach is that it becomes challenging to change URLs on projects with a lot of templates. However, since you defined the name argument in the `path()` functions in the `polls.urls` module, you can remove a reliance on specific URL paths defined in your url configurations by using the `{% url %}` **template tag**:
+
+```html
+<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
+You can see exactly where the URL name of ‘detail’ is defined below:
+
+```python
+...
+# the 'name' value as called by the {% url %} template tag
+path("<int:question_id>/", views.detail, name="detail"),
+...
+```
+
+If you want to change the URL of the polls detail view to something else:
+```python
+...
+# added the word 'specifics'
+path("specifics/<int:question_id>/", views.detail, name="detail"),
+...
+```
+
+## [Namespacing URL names](https://docs.djangoproject.com/en/6.0/intro/tutorial03/#namespacing-url-names)
+
+To differentiate the URL names between apps with the same template names we can add an `app_name` to set the application namespace. Look at `polls/urls.py`.
+
+Change your `polls/index.html` template to point at the namespaced detail view:
+
+```python
+<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
+
