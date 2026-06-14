@@ -81,3 +81,35 @@ This code includes a few things we haven’t covered yet in this tutorial:
 
     where the 3 is the value of `question.id`. This redirected URL will then call the `'results'` view to display the final page.
 
+> As mentioned in Tutorial 3, `request` is an `HttpRequest` object. For more on `HttpRequest` objects, see the [request and response documentation](https://docs.djangoproject.com/en/6.0/ref/request-response/).
+
+Let's create view and template
+
+```python
+# polls/views.py
+from django.shortcuts import get_object_or_404, render
+
+
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, "polls/results.html", {"question": question})
+```
+
+```python
+# polls/templates/polls/results.html
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+```
+
+> Now, go to `/polls/1/` in your browser and vote in the question. You should see a results page that gets updated each time you vote. If you submit the form without having chosen a choice, you should see the error message.
+
+## [Use generic views: Less code is better](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#use-generic-views-less-code-is-better)
+
+
