@@ -112,4 +112,7 @@ def results(request, question_id):
 
 ## [Use generic views: Less code is better](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#use-generic-views-less-code-is-better)
 
+> Generic views abstract common patterns to the point where you don’t even need to write Python code to write an app. For example, the [ListView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.list.ListView) and [DetailView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.detail.DetailView) generic views abstract the concepts of “display a list of objects” and “display a detail page for a particular type of object” respectively.
+
+### [Amend URLconf](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#amend-urlconf)
 
