@@ -32,3 +32,6 @@ Automated tests could do checking for you in seconds. Tests will also assist in 
 
 ### [We identify a bug](http://docs.djangoproject.com/en/6.0/intro/tutorial05/#we-identify-a-bug)
 
+> Fortunately, there’s a little bug in the polls application for us to fix right away: the Question.was_published_recently() method returns True if the Question was published within the last day (which is correct) but also if the Question’s pub_date field is in the future (which certainly isn’t).
+
+### [Create a test to expose the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#create-a-test-to-expose-the-bug)
