@@ -35,3 +35,30 @@ Automated tests could do checking for you in seconds. Tests will also assist in 
 > Fortunately, there’s a little bug in the polls application for us to fix right away: the Question.was_published_recently() method returns True if the Question was published within the last day (which is correct) but also if the Question’s pub_date field is in the future (which certainly isn’t).
 
 ### [Create a test to expose the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#create-a-test-to-expose-the-bug)
+
+A conventional place for an application’s tests is in the application’s `tests.py` file; the testing system will automatically find tests in any file whose name begins with `test`.
+
+Check out `polls/tests.py`
+
+> Here we have created a django.test.TestCase subclass with a method that creates a Question instance with a pub_date in the future. We then check the output of was_published_recently() - which ought to be False.
+
+### [Running tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#running-tests)
+
+In the terminal, we can run our test:
+
+```bash
+python manage.py test polls
+```
+
+What happened is this:
+
+- `manage.py test polls` looked for tests in the `polls` application
+- it found a subclass of the [django.test.TestCase](https://docs.djangoproject.com/en/6.0/topics/testing/tools/#django.test.TestCase) class
+- it created a special database for the purpose of testing
+- it looked for test methods - ones whose names begin with `test`
+- in `test_was_published_recently_with_future_question` it created a `Question` instance whose `pub_date` field is 30 days in the future
+- … and using the `assertIs()` method, it discovered that its `was_published_recently()` returns `True`, though we wanted it to return `False`
+
+The test informs us which test failed and even the line on which the failure occurred.
+
+### [Fixing the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#fixing-the-bug)
