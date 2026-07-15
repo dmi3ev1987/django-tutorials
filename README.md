@@ -62,3 +62,14 @@ What happened is this:
 The test informs us which test failed and even the line on which the failure occurred.
 
 ### [Fixing the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#fixing-the-bug)
+
+Amend the method in models.py, so that it will only return True if the date is also in the past:
+
+```python
+# polls/models.py
+def was_published_recently(self):
+    now = timezone.now()
+    return now - datetime.timedelta(days=1) <= self.pub_date <= now
+```
+
+### [More comprehensive tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#more-comprehensive-tests)
