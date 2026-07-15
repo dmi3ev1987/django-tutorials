@@ -101,3 +101,7 @@ def test_was_published_recently_with_recent_question(self):
 And now we have three tests that confirm that `Question.was_published_recently()` returns sensible values for past, recent, and future questions.
 
 ## [Test a view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#test-a-view)
+
+Setting a pub_date in the future should mean that the Question is published at that moment, but invisible until then.
+
+### [A test for a view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#a-test-for-a-view)
