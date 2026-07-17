@@ -105,3 +105,56 @@ And now we have three tests that confirm that `Question.was_published_recently()
 Setting a pub_date in the future should mean that the Question is published at that moment, but invisible until then.
 
 ### [A test for a view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#a-test-for-a-view)
+
+> When we fixed the bug above, we wrote the test first and then the code to fix it. In fact that was an example of **test-driven development**, but `it doesn’t really matter in which order we do the work`.
+
+Before we try to fix anything, let’s have a look at the tools at our disposal.
+
+### [The Django test client](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#the-django-test-client)
+
+> Django provides a test [Client](https://docs.djangoproject.com/en/6.0/topics/testing/tools/#django.test.Client) to simulate a user interacting with the code at the view level. We can use it in `tests.py` or even in the `shell`.
+
+> We will start again with the shell, where we need to do a couple of things that won’t be necessary in tests.py. The first is to set up the test environment in the shell:
+
+```bash
+python manage.py shell
+```
+
+```bash
+>>> from django.test.utils import setup_test_environment
+>>> setup_test_environment()
+```
+
+> Next we need to import the test client class (later in tests.py we will use the django.test.TestCase class, which comes with its own client, so this won’t be required):
+
+```bash
+>>> from django.test import Client
+>>> # create an instance of the client for our use
+>>> client = Client()
+```
+
+> With that ready, we can ask the client to do some work for us:
+
+```bash
+>>> # get a response from '/'
+>>> response = client.get("/")
+Not Found: /
+>>> # we should expect a 404 from that address; if you instead see an
+>>> # "Invalid HTTP_HOST header" error and a 400 response, you probably
+>>> # omitted the setup_test_environment() call described earlier.
+>>> response.status_code
+404
+>>> # on the other hand we should expect to find something at '/polls/'
+>>> # we'll use 'reverse()' rather than a hardcoded URL
+>>> from django.urls import reverse
+>>> response = client.get(reverse("polls:index"))
+>>> response.status_code
+200
+>>> response.content
+b'\n    <ul>\n    \n        <li><a href="/polls/1/">What&#x27;s up?</a></li>\n    \n    </ul>\n\n'
+>>> response.context["latest_question_list"]
+<QuerySet [<Question: What's up?>]>
+```
+
+### [Improving our view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#improving-our-view)
+
