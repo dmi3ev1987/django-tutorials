@@ -163,3 +163,15 @@ b'\n    <ul>\n    \n        <li><a href="/polls/1/">What&#x27;s up?</a></li>\n  
 > `Question.objects.filter(pub_date__lte=timezone.now())` returns a queryset containing `Questions` whose `pub_date` is less than or equal to - that is, earlier than or equal to - `timezone.now()`.
 
 ### [Testing our new view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-our-new-view)
+
+> Now you can satisfy yourself that this behaves as expected by firing up `runserver`, loading the site in your browser, creating a few `Question` entries with dates in the past and future, and checking that only those that have been published are listed. You don’t want to have to do that every single time you make any change that might affect this - so let’s also create a test, based on our `shell` session above.
+
+We have created a shortcut function to create questions as well as a new test class. Check out updated `polls/tests.py`.
+Let’s look at some of these more closely.
+
+- First is a question shortcut function, `create_question`, to take some repetition out of the process of creating questions.
+- `test_no_questions` doesn’t create any questions, but checks the message: “No polls are available.” and verifies the `latest_question_list` is empty. Note that the `django.test.TestCase` class provides some additional assertion methods. In these examples, we use `assertContains()` and `assertQuerySetEqual()`.
+- In `test_past_question`, we create a question and verify that it appears in the list.
+- In `test_future_question`, we create a question with a `pub_date` in the future. The database is reset for each test method, so the first question is no longer there, and so again the index shouldn’t have any questions in it.
+
+### [Testing the DetailView](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-the-detailview)
