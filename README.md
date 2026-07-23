@@ -158,3 +158,8 @@ b'\n    <ul>\n    \n        <li><a href="/polls/1/">What&#x27;s up?</a></li>\n  
 
 ### [Improving our view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#improving-our-view)
 
+> The list of polls shows polls that aren’t published yet (i.e. those that have a `pub_date` in the future). Let’s fix that.
+
+> `Question.objects.filter(pub_date__lte=timezone.now())` returns a queryset containing `Questions` whose `pub_date` is less than or equal to - that is, earlier than or equal to - `timezone.now()`.
+
+### [Testing our new view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-our-new-view)
