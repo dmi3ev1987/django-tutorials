@@ -175,3 +175,8 @@ Let’s look at some of these more closely.
 - In `test_future_question`, we create a question with a `pub_date` in the future. The database is reset for each test method, so the first question is no longer there, and so again the index shouldn’t have any questions in it.
 
 ### [Testing the DetailView](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-the-detailview)
+
+- Added `get_queryset` in `polls/views.py`.
+- Added tests, to check that a Question whose `pub_date` is in the past can be displayed, and that one with a `pub_date` in the future is not. Check out `polls/tests.py`. Look at `QuestionDetailViewTests` class.
+
+### [Ideas for more tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#ideas-for-more-tests)
