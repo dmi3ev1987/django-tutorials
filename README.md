@@ -180,3 +180,13 @@ Let’s look at some of these more closely.
 - Added tests, to check that a Question whose `pub_date` is in the past can be displayed, and that one with a `pub_date` in the future is not. Check out `polls/tests.py`. Look at `QuestionDetailViewTests` class.
 
 ### [Ideas for more tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#ideas-for-more-tests)
+
+> We ought to add a similar get_queryset method to ResultsView and create a new test class for that view. It’ll be very similar to what we have just created; in fact there will be a lot of repetition.
+
+> We could also improve our application in other ways, adding tests along the way. For example, it’s pointless that a Question with no related Choice can be published on the site. So, our views could check for this, and exclude such Question objects. Our tests would create a Question without a Choice, and then test that it’s not published, as well as create a similar Question with at least one Choice, and test that it is published.
+
+> Perhaps logged-in admin users should be allowed to see unpublished Question entries, but not ordinary visitors. Again: whatever needs to be added to the software to accomplish this should be accompanied by a test, whether you write the test first and then make the code pass the test, or work out the logic in your code first and then write a test to prove it.
+
+> At a certain point you are bound to look at your tests and wonder whether your code is suffering from test bloat, which brings us to:
+
+### [When testing, more is better](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#when-testing-more-is-better)
