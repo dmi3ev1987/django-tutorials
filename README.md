@@ -205,3 +205,11 @@ As long as your tests are sensibly arranged, they won’t become unmanageable. G
 - test method names that describe their function
 
 ### [Further testing](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#further-testing)
+
+While our tests here have covered some of the internal logic of a model and the way our views publish information, you can use an “in-browser” framework such as Selenium to test the way your HTML actually renders in a browser. These tools allow you to check not just the behavior of your Django code, but also, for example, of your JavaScript. It’s quite something to see the tests launch a browser, and start interacting with your site, as if a human being were driving it! Django includes LiveServerTestCase to facilitate integration with tools like Selenium.
+
+If you have a complex application, you may want to run tests automatically with every commit for the purposes of [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration), so that quality control is itself - at least partially - automated.
+
+A good way to spot untested parts of your application is to check code coverage. This also helps identify fragile or even dead code. If you can’t test a piece of code, it usually means that code should be refactored or removed. Coverage will help to identify dead code. See [Integration with coverage.py](https://docs.djangoproject.com/en/6.0/topics/testing/advanced/#topics-testing-code-coverage) for details.
+
+[Testing in Django](https://docs.djangoproject.com/en/6.0/topics/testing/) has comprehensive information about testing.
