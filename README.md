@@ -190,3 +190,18 @@ Let’s look at some of these more closely.
 > At a certain point you are bound to look at your tests and wonder whether your code is suffering from test bloat, which brings us to:
 
 ### [When testing, more is better](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#when-testing-more-is-better)
+
+It might seem that our tests are growing out of control. At this rate there will soon be more code in our tests than in our application, and the repetition is unaesthetic, compared to the elegant conciseness of the rest of our code.
+
+It doesn’t matter. Let them grow. For the most part, you can write a test once and then forget about it. It will continue performing its useful function as you continue to develop your program.
+
+Sometimes tests will need to be updated. Suppose that we amend our views so that only Question entries with associated Choice instances are published. In that case, many of our existing tests will fail - telling us exactly which tests need to be amended to bring them up to date, so to that extent tests help look after themselves.
+
+At worst, as you continue developing, you might find that you have some tests that are now redundant. Even that’s not a problem; in testing redundancy is a good thing.
+
+As long as your tests are sensibly arranged, they won’t become unmanageable. Good rules-of-thumb include having:
+- a separate TestClass for each model or view
+- a separate test method for each set of conditions you want to test
+- test method names that describe their function
+
+### [Further testing](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#further-testing)
