@@ -1,181 +1,215 @@
-# [Part 4: Forms and generic views](https://docs.djangoproject.com/en/6.0/intro/tutorial04/)
+# [Part 5: Testing](https://docs.djangoproject.com/en/6.0/intro/tutorial05/)
 
-## [Write a minimal form](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#write-a-minimal-form)
+## [Introducing automated testing](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#introducing-automated-testing)
 
-```python
-# polls/templates/polls/detail.html
-<form action="{% url 'polls:vote' question.id %}" method="post">
-{% csrf_token %}
-<fieldset>
-    <legend><h1>{{ question.question_text }}</h1></legend>
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    {% for choice in question.choice_set.all %}
-        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
-    {% endfor %}
-</fieldset>
-<input type="submit" value="Vote">
-</form>
+### [What are automated tests?](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#what-are-automated-tests)
+
+In automated tests the testing work is done for you by the system. You create a set of tests once, and then as you make changes to your app, you can check that your code still works as you originally intended, without having to perform time consuming manual testing.
+
+### [Why you need to create tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#why-you-need-to-create-tests)
+
+#### [Tests will save you time](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#tests-will-save-you-time)
+
+Automated tests could do checking for you in seconds. Tests will also assist in identifying the code that’s causing the unexpected behavior.
+
+#### [Tests don’t just identify problems, they prevent them](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#tests-don-t-just-identify-problems-they-prevent-them)
+
+#### [Tests make your code more attractive](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#tests-make-your-code-more-attractive)
+
+> You might have created a brilliant piece of software, but you will find that many other developers will refuse to look at it because it lacks tests; without tests, they won’t trust it. Jacob Kaplan-Moss, one of Django’s original developers, says “Code without tests is broken by design.”
+
+> That other developers want to see tests in your software before they take it seriously is yet another reason for you to start writing tests.
+
+#### [Tests help teams work together](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#tests-help-teams-work-together)
+
+> If you want to make a living as a Django programmer, you must be good at writing tests!
+
+## [Basic testing strategies](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#basic-testing-strategies)
+
+> Some programmers follow a discipline called “[test-driven development](https://en.wikipedia.org/wiki/Test-driven_development)”; they actually write their tests before they write their code. This might seem counterintuitive, but in fact it’s similar to what most people will often do anyway: they describe a problem, then create some code to solve it. Test-driven development formalizes the problem in a Python test case.
+
+## [Writing our first test](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#writing-our-first-test)
+
+### [We identify a bug](http://docs.djangoproject.com/en/6.0/intro/tutorial05/#we-identify-a-bug)
+
+> Fortunately, there’s a little bug in the polls application for us to fix right away: the Question.was_published_recently() method returns True if the Question was published within the last day (which is correct) but also if the Question’s pub_date field is in the future (which certainly isn’t).
+
+### [Create a test to expose the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#create-a-test-to-expose-the-bug)
+
+A conventional place for an application’s tests is in the application’s `tests.py` file; the testing system will automatically find tests in any file whose name begins with `test`.
+
+Check out `polls/tests.py`
+
+> Here we have created a django.test.TestCase subclass with a method that creates a Question instance with a pub_date in the future. We then check the output of was_published_recently() - which ought to be False.
+
+### [Running tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#running-tests)
+
+In the terminal, we can run our test:
+
+```bash
+python manage.py test polls
 ```
 
-A quick rundown:
+What happened is this:
 
-- The above template displays a radio button for each question choice. The `value` of each radio button is the associated question choice’s ID. The `name` of each radio button is `"choice"`. That means, when somebody selects one of the radio buttons and submits the form, it’ll send the POST data `choice=#` where # is the ID of the selected choice. This is the basic concept of HTML forms.
-- We set the form’s `action` to `{% url 'polls:vote' question.id %}`, and we set `method="post"`. Using `method="post"` (as opposed to `method="get"`) is very important, because the act of submitting this form will alter data server-side. Whenever you create a form that alters data server-side, use method="post". This tip isn’t specific to Django; it’s good web development practice in general.
-- `forloop.counter` indicates how many times the [for](https://docs.djangoproject.com/en/6.0/ref/templates/builtins/#std-templatetag-for) tag has gone through its loop
-- Since we’re creating a POST form (which can have the effect of modifying data), we need to worry about Cross Site Request Forgeries. Thankfully, you don’t have to worry too hard, because Django comes with a helpful system for protecting against it. In short, all POST forms that are targeted at internal URLs should use the `{% csrf_token %}` template tag.
+- `manage.py test polls` looked for tests in the `polls` application
+- it found a subclass of the [django.test.TestCase](https://docs.djangoproject.com/en/6.0/topics/testing/tools/#django.test.TestCase) class
+- it created a special database for the purpose of testing
+- it looked for test methods - ones whose names begin with `test`
+- in `test_was_published_recently_with_future_question` it created a `Question` instance whose `pub_date` field is 30 days in the future
+- … and using the `assertIs()` method, it discovered that its `was_published_recently()` returns `True`, though we wanted it to return `False`
 
-```python
-# polls/views.py
-from django.db.models import F
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+The test informs us which test failed and even the line on which the failure occurred.
 
-from .models import Choice, Question
+### [Fixing the bug](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#fixing-the-bug)
 
-
-# ...
-def vote(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = question.choice_set.get(pk=request.POST["choice"])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(
-            request,
-            "polls/detail.html",
-            {
-                "question": question,
-                "error_message": "You didn't select a choice.",
-            },
-        )
-    else:
-        selected_choice.votes = F("votes") + 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
-```
-
-This code includes a few things we haven’t covered yet in this tutorial:
-
-- [request.POST](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpRequest.POST) is a dictionary-like object that lets you access submitted data by key name. In this case, `request.POST['choice'] `returns the ID of the selected choice, as a string. [request.POST](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpRequest.POST) values are always strings.
-
-    Note that Django also provides [request.GET](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpRequest.GET) for accessing GET data in the same way – but we’re explicitly using [request.POST](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpRequest.POST) in our code, to ensure that data is only altered via a POST call.
-
-- `request.POST['choice']` will raise [KeyError](https://docs.python.org/3/library/exceptions.html#KeyError) if `choice` wasn’t provided in POST data. The above code checks for [KeyError](https://docs.python.org/3/library/exceptions.html#KeyError) and redisplays the question form with an error message if `choice` isn’t given.
-
-- `F("votes") + 1` [instructs the database](https://docs.djangoproject.com/en/6.0/ref/models/expressions/#avoiding-race-conditions-using-f) to increase the vote count by 1.
-
-- After incrementing the choice count, the code returns an [HttpResponseRedirect](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponseRedirect) rather than a normal [HttpResponse](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponse). [HttpResponseRedirect](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponseRedirect) takes a single argument: the URL to which the user will be redirected (see the following point for how we construct the URL in this case).
-
-    As the Python comment above points out, you should always return an [HttpResponseRedirect](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponseRedirect) after successfully dealing with POST data. This tip isn’t specific to Django; it’s good web development practice in general.
-
-- We are using the [reverse()](https://docs.djangoproject.com/en/6.0/ref/urlresolvers/#django.urls.reverse) function in the [HttpResponseRedirect](https://docs.djangoproject.com/en/6.0/ref/request-response/#django.http.HttpResponseRedirect)constructor in this example. This function helps avoid having to hardcode a URL in the view function. It is given the name of the view that we want to pass control to and the variable portion of the URL pattern that points to that view. In this case, using the URLconf we set up in [Tutorial 3](https://docs.djangoproject.com/en/6.0/intro/tutorial03/), this [reverse()](https://docs.djangoproject.com/en/6.0/ref/urlresolvers/#django.urls.reverse) call will return a string like
-
-    ```python
-    "/polls/3/results/"
-    ```
-
-    where the 3 is the value of `question.id`. This redirected URL will then call the `'results'` view to display the final page.
-
-> As mentioned in Tutorial 3, `request` is an `HttpRequest` object. For more on `HttpRequest` objects, see the [request and response documentation](https://docs.djangoproject.com/en/6.0/ref/request-response/).
-
-Let's create view and template
+Amend the method in models.py, so that it will only return True if the date is also in the past:
 
 ```python
-# polls/views.py
-from django.shortcuts import get_object_or_404, render
-
-
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, "polls/results.html", {"question": question})
+# polls/models.py
+def was_published_recently(self):
+    now = timezone.now()
+    return now - datetime.timedelta(days=1) <= self.pub_date <= now
 ```
+
+### [More comprehensive tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#more-comprehensive-tests)
+
+Add two more test methods to the same class, to test the behavior of the method more comprehensively:
 
 ```python
-# polls/templates/polls/results.html
-<h1>{{ question.question_text }}</h1>
+# polls/tests.py
+def test_was_published_recently_with_old_question(self):
+    """
+    was_published_recently() returns False for questions whose pub_date
+    is older than 1 day.
+    """
+    time = timezone.now() - datetime.timedelta(days=1, seconds=1)
+    old_question = Question(pub_date=time)
+    self.assertIs(old_question.was_published_recently(), False)
 
-<ul>
-{% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
-{% endfor %}
-</ul>
 
-<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+def test_was_published_recently_with_recent_question(self):
+    """
+    was_published_recently() returns True for questions whose pub_date
+    is within the last day.
+    """
+    time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+    recent_question = Question(pub_date=time)
+    self.assertIs(recent_question.was_published_recently(), True)
 ```
 
-> Now, go to `/polls/1/` in your browser and vote in the question. You should see a results page that gets updated each time you vote. If you submit the form without having chosen a choice, you should see the error message.
+And now we have three tests that confirm that `Question.was_published_recently()` returns sensible values for past, recent, and future questions.
 
-## [Use generic views: Less code is better](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#use-generic-views-less-code-is-better)
+## [Test a view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#test-a-view)
 
-> Generic views abstract common patterns to the point where you don’t even need to write Python code to write an app. For example, the [ListView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.list.ListView) and [DetailView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.detail.DetailView) generic views abstract the concepts of “display a list of objects” and “display a detail page for a particular type of object” respectively.
+Setting a pub_date in the future should mean that the Question is published at that moment, but invisible until then.
 
-### [Amend URLconf](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#amend-urlconf)
+### [A test for a view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#a-test-for-a-view)
 
-```python
-# polls/urls.py
-from django.urls import path
+> When we fixed the bug above, we wrote the test first and then the code to fix it. In fact that was an example of **test-driven development**, but `it doesn’t really matter in which order we do the work`.
 
-from . import views
+Before we try to fix anything, let’s have a look at the tools at our disposal.
 
-app_name = "polls"
-urlpatterns = [
-    path("", views.IndexView.as_view(), name="index"),
-    path("<int:pk>/", views.DetailView.as_view(), name="detail"),
-    path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
-    path("<int:question_id>/vote/", views.vote, name="vote"),
-]
+### [The Django test client](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#the-django-test-client)
+
+> Django provides a test [Client](https://docs.djangoproject.com/en/6.0/topics/testing/tools/#django.test.Client) to simulate a user interacting with the code at the view level. We can use it in `tests.py` or even in the `shell`.
+
+> We will start again with the shell, where we need to do a couple of things that won’t be necessary in tests.py. The first is to set up the test environment in the shell:
+
+```bash
+python manage.py shell
 ```
 
-> Note that the name of the matched pattern in the path strings of the second and third patterns has changed from `<question_id>` to `<pk>`. This is necessary because we’ll use the [DetailView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.detail.DetailView) generic view to replace our `detail()` and `results()` views, and it expects the primary key value captured from the URL to be called `"pk"`.
-
-### [Amend views](https://docs.djangoproject.com/en/6.0/intro/tutorial04/#amend-views)
-
-```python
-# polls/views.py
-from django.db.models import F
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
-from django.views import generic
-
-from .models import Choice, Question
-
-
-class IndexView(generic.ListView):
-    template_name = "polls/index.html"
-    context_object_name = "latest_question_list"
-
-    def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by("-pub_date")[:5]
-
-
-class DetailView(generic.DetailView):
-    model = Question
-    template_name = "polls/detail.html"
-
-
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = "polls/results.html"
-
-
-def vote(request, question_id):
-    # same as above, no changes needed.
-    ...
+```bash
+>>> from django.test.utils import setup_test_environment
+>>> setup_test_environment()
 ```
 
-> Each generic view needs to know what model it will be acting upon. This is provided using either the `model` attribute (in this example, `model = Question` for `DetailView` and `ResultsView`) or by defining the [get_queryset()](https://docs.djangoproject.com/en/6.0/ref/class-based-views/mixins-multiple-object/#django.views.generic.list.MultipleObjectMixin.get_queryset) method (as shown in `IndexView`).
+> Next we need to import the test client class (later in tests.py we will use the django.test.TestCase class, which comes with its own client, so this won’t be required):
 
-> By default, the `DetailView` generic view uses a template called `<app name>/<model name>_detail.html`. In our case, it would use the template `"polls/question_detail.html"`. The `template_name` attribute is used to tell Django to use a specific template name instead of the autogenerated default template name. We also specify the `template_name` for the `results` list view – this ensures that the results view and the detail view have a different appearance when rendered, even though they’re both a [DetailView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.detail.DetailView) behind the scenes.
+```bash
+>>> from django.test import Client
+>>> # create an instance of the client for our use
+>>> client = Client()
+```
 
-> Similarly, the [ListView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.list.ListView) generic view uses a default template called `<app name>/<model name>_list.html`; we use `template_name` to tell [ListView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.list.ListView) to use our existing `"polls/index.html"` template.
+> With that ready, we can ask the client to do some work for us:
 
-> In previous parts of the tutorial, the templates have been provided with a context that contains the `question` and `latest_question_list` context variables. For [DetailView](https://docs.djangoproject.com/en/6.0/ref/class-based-views/generic-display/#django.views.generic.detail.DetailView) the `question` variable is provided automatically – since we’re using a Django model (`Question`), Django is able to determine an appropriate name for the context variable. However, for ListView, the automatically generated context variable is `question_list`. To override this we provide the `context_object_name` attribute, specifying that we want to use `latest_question_list` instead. As an alternative approach, you could change your templates to match the new default context variables – but it’s a lot easier to tell Django to use the variable you want.
+```bash
+>>> # get a response from '/'
+>>> response = client.get("/")
+Not Found: /
+>>> # we should expect a 404 from that address; if you instead see an
+>>> # "Invalid HTTP_HOST header" error and a 400 response, you probably
+>>> # omitted the setup_test_environment() call described earlier.
+>>> response.status_code
+404
+>>> # on the other hand we should expect to find something at '/polls/'
+>>> # we'll use 'reverse()' rather than a hardcoded URL
+>>> from django.urls import reverse
+>>> response = client.get(reverse("polls:index"))
+>>> response.status_code
+200
+>>> response.content
+b'\n    <ul>\n    \n        <li><a href="/polls/1/">What&#x27;s up?</a></li>\n    \n    </ul>\n\n'
+>>> response.context["latest_question_list"]
+<QuerySet [<Question: What's up?>]>
+```
 
-For full details on generic views, see the [generic views documentation](https://docs.djangoproject.com/en/6.0/topics/class-based-views/).
+### [Improving our view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#improving-our-view)
+
+> The list of polls shows polls that aren’t published yet (i.e. those that have a `pub_date` in the future). Let’s fix that.
+
+> `Question.objects.filter(pub_date__lte=timezone.now())` returns a queryset containing `Questions` whose `pub_date` is less than or equal to - that is, earlier than or equal to - `timezone.now()`.
+
+### [Testing our new view](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-our-new-view)
+
+> Now you can satisfy yourself that this behaves as expected by firing up `runserver`, loading the site in your browser, creating a few `Question` entries with dates in the past and future, and checking that only those that have been published are listed. You don’t want to have to do that every single time you make any change that might affect this - so let’s also create a test, based on our `shell` session above.
+
+We have created a shortcut function to create questions as well as a new test class. Check out updated `polls/tests.py`.
+Let’s look at some of these more closely.
+
+- First is a question shortcut function, `create_question`, to take some repetition out of the process of creating questions.
+- `test_no_questions` doesn’t create any questions, but checks the message: “No polls are available.” and verifies the `latest_question_list` is empty. Note that the `django.test.TestCase` class provides some additional assertion methods. In these examples, we use `assertContains()` and `assertQuerySetEqual()`.
+- In `test_past_question`, we create a question and verify that it appears in the list.
+- In `test_future_question`, we create a question with a `pub_date` in the future. The database is reset for each test method, so the first question is no longer there, and so again the index shouldn’t have any questions in it.
+
+### [Testing the DetailView](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#testing-the-detailview)
+
+- Added `get_queryset` in `polls/views.py`.
+- Added tests, to check that a Question whose `pub_date` is in the past can be displayed, and that one with a `pub_date` in the future is not. Check out `polls/tests.py`. Look at `QuestionDetailViewTests` class.
+
+### [Ideas for more tests](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#ideas-for-more-tests)
+
+> We ought to add a similar get_queryset method to ResultsView and create a new test class for that view. It’ll be very similar to what we have just created; in fact there will be a lot of repetition.
+
+> We could also improve our application in other ways, adding tests along the way. For example, it’s pointless that a Question with no related Choice can be published on the site. So, our views could check for this, and exclude such Question objects. Our tests would create a Question without a Choice, and then test that it’s not published, as well as create a similar Question with at least one Choice, and test that it is published.
+
+> Perhaps logged-in admin users should be allowed to see unpublished Question entries, but not ordinary visitors. Again: whatever needs to be added to the software to accomplish this should be accompanied by a test, whether you write the test first and then make the code pass the test, or work out the logic in your code first and then write a test to prove it.
+
+> At a certain point you are bound to look at your tests and wonder whether your code is suffering from test bloat, which brings us to:
+
+### [When testing, more is better](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#when-testing-more-is-better)
+
+It might seem that our tests are growing out of control. At this rate there will soon be more code in our tests than in our application, and the repetition is unaesthetic, compared to the elegant conciseness of the rest of our code.
+
+It doesn’t matter. Let them grow. For the most part, you can write a test once and then forget about it. It will continue performing its useful function as you continue to develop your program.
+
+Sometimes tests will need to be updated. Suppose that we amend our views so that only Question entries with associated Choice instances are published. In that case, many of our existing tests will fail - telling us exactly which tests need to be amended to bring them up to date, so to that extent tests help look after themselves.
+
+At worst, as you continue developing, you might find that you have some tests that are now redundant. Even that’s not a problem; in testing redundancy is a good thing.
+
+As long as your tests are sensibly arranged, they won’t become unmanageable. Good rules-of-thumb include having:
+- a separate TestClass for each model or view
+- a separate test method for each set of conditions you want to test
+- test method names that describe their function
+
+### [Further testing](https://docs.djangoproject.com/en/6.0/intro/tutorial05/#further-testing)
+
+While our tests here have covered some of the internal logic of a model and the way our views publish information, you can use an “in-browser” framework such as Selenium to test the way your HTML actually renders in a browser. These tools allow you to check not just the behavior of your Django code, but also, for example, of your JavaScript. It’s quite something to see the tests launch a browser, and start interacting with your site, as if a human being were driving it! Django includes LiveServerTestCase to facilitate integration with tools like Selenium.
+
+If you have a complex application, you may want to run tests automatically with every commit for the purposes of [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration), so that quality control is itself - at least partially - automated.
+
+A good way to spot untested parts of your application is to check code coverage. This also helps identify fragile or even dead code. If you can’t test a piece of code, it usually means that code should be refactored or removed. Coverage will help to identify dead code. See [Integration with coverage.py](https://docs.djangoproject.com/en/6.0/topics/testing/advanced/#topics-testing-code-coverage) for details.
+
+[Testing in Django](https://docs.djangoproject.com/en/6.0/topics/testing/) has comprehensive information about testing.
